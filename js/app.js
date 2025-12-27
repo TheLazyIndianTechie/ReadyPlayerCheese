@@ -231,12 +231,12 @@ function updateBackgroundColorUI() {
 // API Functions
 // ============================================================================
 
-function buildApiUrl(avatarId = state.avatarId) {
+function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = state.expression) {
     const format = state.format;
     const params = new URLSearchParams();
 
-    if (state.pose) params.append('pose', state.pose);
-    if (state.expression) params.append('expression', state.expression);
+    if (pose) params.append('pose', pose);
+    if (expression) params.append('expression', expression);
     if (state.camera) params.append('camera', state.camera);
     if (state.size) params.append('size', state.size);
     if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
@@ -446,11 +446,9 @@ async function startBulkDownload() {
                 if (!state.isBulkDownloading) return;
 
                 try {
-                    const url = buildApiUrl(state.avatarId);
-                    const fullUrl = url + (url.includes('?') ? '&' : '?') + 
-                        `pose=${combo.pose || ''}&expression=${combo.expression || ''}`;
+                    const url = buildApiUrl(state.avatarId, combo.pose, combo.expression);
                     
-                    const blob = await fetchImage(fullUrl);
+                    const blob = await fetchImage(url);
                     const poseName = combo.pose || 'default';
                     const expressionName = combo.expression || 'neutral';
                     const filename = `pose-${poseName}_expression-${expressionName}.${state.format}`;
