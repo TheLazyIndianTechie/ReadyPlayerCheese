@@ -289,7 +289,6 @@ function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = 
 
      if (pose) params.append('pose', pose);
      if (expression) params.append('expression', expression);
-     if (state.scene) params.append('scene', state.scene);
      if (state.camera) params.append('camera', state.camera);
      if (state.size) params.append('size', state.size);
      if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
