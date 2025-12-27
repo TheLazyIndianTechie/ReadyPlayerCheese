@@ -17,7 +17,6 @@ const state = {
     size: 512,
     backgroundColor: '#FFFFFF',
     transparentBg: false,
-    scene: '',
     blendShapes: {
         mouthSmile: 0,
         browInnerUp: 0,
@@ -42,7 +41,6 @@ const elements = {
     imageQuality: document.getElementById('imageQuality'),
     pose: document.getElementById('pose'),
     expression: document.getElementById('expression'),
-    scene: document.getElementById('scene'),
     camera: document.getElementById('camera'),
     imageSize: document.getElementById('imageSize'),
     backgroundColor: document.getElementById('backgroundColor'),
@@ -97,6 +95,15 @@ const MAX_RETRIES = 2; // Retry failed requests up to 2 times
 const POSES = ['', 'power-stance', 'relaxed', 'standing', 'thumbs-up'];
 const EXPRESSIONS = ['', 'happy', 'lol', 'sad', 'scared', 'rage'];
 
+// Camera presets per pose for bulk downloads
+const POSE_CAMERA_PRESETS = {
+    '': 'portrait',
+    'power-stance': 'fullbody',
+    'relaxed': 'fullbody',
+    'standing': 'fullbody',
+    'thumbs-up': 'portrait'
+};
+
 // ============================================================================
 // Initialization
 // ============================================================================
@@ -119,7 +126,6 @@ function setupEventListeners() {
     // Controls
     elements.pose.addEventListener('change', updateState);
     elements.expression.addEventListener('change', updateState);
-    elements.scene.addEventListener('change', updateState);
     elements.camera.addEventListener('change', updateState);
     elements.imageSize.addEventListener('change', updateState);
 
@@ -283,13 +289,15 @@ function resetBlendShapes() {
 // API Functions
 // ============================================================================
 
-function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = state.expression, transparentBg = state.transparentBg) {
+function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = state.expression, transparentBg = state.transparentBg, camera = null) {
      const format = state.format;
      const params = new URLSearchParams();
 
      if (pose) params.append('pose', pose);
      if (expression) params.append('expression', expression);
-     if (state.camera) params.append('camera', state.camera);
+     // Use provided camera, fallback to state.camera
+     const cameraToUse = camera || state.camera;
+     if (cameraToUse) params.append('camera', cameraToUse);
      if (state.size) params.append('size', state.size);
      if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
      if (!transparentBg && state.backgroundColor && state.backgroundColor !== 'transparent') {
@@ -514,7 +522,9 @@ async function startBulkDownload() {
                  if (!state.isBulkDownloading) return;
 
                  try {
-                     const url = buildApiUrl(state.avatarId, combo.pose, combo.expression, bulkTransparent);
+                     // Use pose-specific camera preset for bulk downloads
+                     const poseCamera = POSE_CAMERA_PRESETS[combo.pose];
+                     const url = buildApiUrl(state.avatarId, combo.pose, combo.expression, bulkTransparent, poseCamera);
                      
                      const blob = await fetchImage(url, BULK_TIMEOUT);
                      const poseName = combo.pose || 'default';
