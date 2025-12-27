@@ -1,0 +1,21 @@
+{
+  "name": "rpm-avatar-viewer",
+  "version": "1.0.0",
+  "description": "ReadyPlayerMe 2D Avatar Viewer - Generate and download custom avatar renders",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "echo \"Static site - no build needed\""
+  },
+  "keywords": [
+    "readyplayerme",
+    "avatar",
+    "viewer",
+    "generator"
+  ],
+  "author": "Product Team",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {}
+}

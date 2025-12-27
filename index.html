@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ReadyPlayerMe 2D Avatar Viewer - Generate and download custom avatar renders">
+    <meta name="theme-color" content="#0066CC">
+    <title>ReadyPlayerMe Avatar Viewer</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    
+    <!-- CDN Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 class="app-title">Avatar Viewer</h1>
+                <p class="app-subtitle">Generate and download ReadyPlayerMe avatars</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <div class="content-wrapper">
+                <!-- Controls Panel (Left) -->
+                <section class="controls-panel" aria-label="Avatar customization controls">
+                    <form id="avatarForm" class="controls-form">
+                        <!-- Avatar ID Input -->
+                        <div class="form-group">
+                            <label for="avatarId" class="form-label">Avatar ID</label>
+                            <input 
+                                type="text" 
+                                id="avatarId" 
+                                class="form-input" 
+                                placeholder="e.g., 64e3055495439dfcf3f0b665"
+                                value="64e3055495439dfcf3f0b665"
+                                aria-describedby="avatarIdError"
+                            >
+                            <div id="avatarIdError" class="form-error" role="alert"></div>
+                            <button type="button" id="clearAvatarId" class="form-clear-btn" aria-label="Clear avatar ID">✕</button>
+                        </div>
+
+                        <!-- Image Format -->
+                        <div class="form-group">
+                            <label for="imageFormat" class="form-label">Format</label>
+                            <select id="imageFormat" class="form-select">
+                                <option value="png" selected>PNG</option>
+                                <option value="jpg">JPG</option>
+                            </select>
+                        </div>
+
+                        <!-- Quality (JPG only) -->
+                        <div class="form-group" id="qualityGroup" style="display: none;">
+                            <label for="imageQuality" class="form-label">Quality</label>
+                            <div class="quality-controls">
+                                <input 
+                                    type="range" 
+                                    id="imageQuality" 
+                                    class="form-range" 
+                                    min="0" 
+                                    max="100" 
+                                    value="80"
+                                    aria-label="Image quality"
+                                >
+                                <span id="qualityValue" class="quality-value">80</span>
+                            </div>
+                        </div>
+
+                        <!-- Pose -->
+                        <div class="form-group">
+                            <label for="pose" class="form-label">Pose</label>
+                            <select id="pose" class="form-select">
+                                <option value="">Default</option>
+                                <option value="power-stance">Power Stance</option>
+                                <option value="relaxed">Relaxed</option>
+                                <option value="standing">Standing</option>
+                                <option value="thumbs-up">Thumbs Up</option>
+                            </select>
+                        </div>
+
+                        <!-- Expression -->
+                        <div class="form-group">
+                            <label for="expression" class="form-label">Expression</label>
+                            <select id="expression" class="form-select">
+                                <option value="">Neutral</option>
+                                <option value="happy">Happy</option>
+                                <option value="lol">LOL</option>
+                                <option value="sad">Sad</option>
+                                <option value="scared">Scared</option>
+                                <option value="rage">Rage</option>
+                            </select>
+                        </div>
+
+                        <!-- Camera Preset -->
+                        <div class="form-group">
+                            <label for="camera" class="form-label">Camera</label>
+                            <select id="camera" class="form-select">
+                                <option value="portrait" selected>Portrait</option>
+                                <option value="fullbody">Full Body</option>
+                                <option value="fit">Fit</option>
+                            </select>
+                        </div>
+
+                        <!-- Image Size -->
+                        <div class="form-group">
+                            <label for="imageSize" class="form-label">Image Size</label>
+                            <select id="imageSize" class="form-select">
+                                <option value="64">64×64 (Thumbnail)</option>
+                                <option value="256">256×256 (Small)</option>
+                                <option value="512" selected>512×512 (Medium)</option>
+                                <option value="1024">1024×1024 (Large)</option>
+                            </select>
+                        </div>
+
+                        <!-- Background Color -->
+                        <div class="form-group">
+                            <label for="backgroundColor" class="form-label">Background</label>
+                            <div class="color-controls">
+                                <input 
+                                    type="color" 
+                                    id="backgroundColor" 
+                                    class="form-color" 
+                                    value="#FFFFFF"
+                                    aria-label="Background color picker"
+                                >
+                                <label class="transparent-toggle">
+                                    <input 
+                                        type="checkbox" 
+                                        id="transparentBg" 
+                                        class="transparent-checkbox"
+                                        aria-label="Use transparent background"
+                                    >
+                                    <span>Transparent (PNG only)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="button-group">
+                            <button type="button" id="previewBtn" class="btn btn-primary" aria-label="Preview avatar">
+                                Preview Avatar
+                            </button>
+                            <button type="button" id="downloadBtn" class="btn btn-secondary" disabled aria-label="Download avatar image">
+                                Download PNG
+                            </button>
+                            <button type="button" id="getallBtn" class="btn btn-tertiary" disabled aria-label="Download all avatar combinations">
+                                Get All Poses
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Preview Area (Right) -->
+                <section class="preview-panel" aria-label="Avatar preview area">
+                    <div class="preview-container">
+                        <div id="previewArea" class="preview-display">
+                            <div class="preview-placeholder">
+                                <p>Avatar preview will appear here</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Loading State -->
+                        <div id="loadingState" class="loading-state" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Loading avatar...</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="errorState" class="error-state" style="display: none;" role="alert">
+                            <p id="errorMessage" class="error-text"></p>
+                            <button type="button" id="retryBtn" class="btn btn-small" style="display: none;">Retry</button>
+                        </div>
+
+                        <!-- Image Info -->
+                        <div id="imageInfo" class="image-info" style="display: none;">
+                            <div class="info-item">
+                                <span class="info-label">Dimensions:</span>
+                                <span id="imageDimensions" class="info-value"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Format:</span>
+                                <span id="imageFormatInfo" class="info-value"></span>
+                            </div>
+                            <div class="api-url-section">
+                                <label for="apiUrl" class="info-label">API URL:</label>
+                                <div class="api-url-container">
+                                    <input 
+                                        type="text" 
+                                        id="apiUrl" 
+                                        class="api-url-input" 
+                                        readonly
+                                        aria-label="Generated API URL"
+                                    >
+                                    <button type="button" id="copyUrlBtn" class="btn btn-small" aria-label="Copy API URL">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bulk Download Progress -->
+                        <div id="bulkDownloadProgress" class="bulk-progress" style="display: none;">
+                            <div class="progress-header">
+                                <h3>Downloading Combinations</h3>
+                                <button type="button" id="cancelBulkBtn" class="btn-icon-close" aria-label="Cancel bulk download">✕</button>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div id="progressBar" class="progress-bar"></div>
+                            </div>
+                            <p id="progressText" class="progress-text">Downloading 0/30 images...</p>
+                        </div>
+
+                        <!-- Bulk Download Confirmation Modal -->
+                        <div id="bulkConfirmModal" class="modal" style="display: none;">
+                            <div class="modal-content">
+                                <h2>Download All Combinations</h2>
+                                <div class="modal-body">
+                                    <p><strong>Total images:</strong> 30</p>
+                                    <p><strong>Combinations:</strong> 5 poses × 6 expressions</p>
+                                    <p id="estimatedSize" class="estimated-size"></p>
+                                    <p class="info-text">Estimated download time: <span id="estimatedTime">~2 minutes</span></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="confirmProceedBtn" class="btn btn-primary">Proceed</button>
+                                    <button type="button" id="confirmCancelBtn" class="btn btn-secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2025 ReadyPlayerMe Avatar Viewer. <a href="https://docs.readyplayer.me" target="_blank" rel="noopener">API Documentation</a></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>

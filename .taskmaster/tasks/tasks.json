@@ -1,0 +1,183 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": "11",
+        "title": "Project Setup and HTML Structure",
+        "description": "Initialize project repository, create base HTML structure with semantic markup, and set up development environment with necessary dependencies (JSZip, FileSaver.js).",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "details": "Create index.html with semantic HTML5 structure including: header with title, main content area with two-column layout (controls panel on left, preview area on right), footer. Include meta tags for viewport, charset, and SEO. Add CDN links for JSZip (v3.10.1) and FileSaver.js (v2.0.5). Create directory structure: /css, /js, /assets. Initialize git repository. Set up .gitignore for node_modules and build artifacts. Create package.json with build scripts. Use CSS custom properties (CSS variables) for theming. Implement 8px grid system baseline. Include accessibility landmarks (main, nav, section roles). Add loading spinner SVG asset and checkered pattern background for transparency preview.",
+        "testStrategy": "Verify HTML validates with W3C validator. Check all semantic elements are properly nested. Confirm CDN libraries load without console errors. Test viewport meta tag on mobile devices. Verify CSS variables are accessible in browser DevTools. Check page renders without JavaScript (graceful degradation).",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:22:52.568Z"
+      },
+      {
+        "id": "12",
+        "title": "Avatar ID Input and Validation",
+        "description": "Implement Avatar ID input field with real-time validation, error messaging, and pre-population with example ID for quick testing.",
+        "status": "done",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "high",
+        "details": "Create input field with id='avatarId', placeholder='e.g., 64e3055495439dfcf3f0b665'. Implement validation function: check for 24-character alphanumeric string using regex /^[a-f0-9]{24}$/i. Add real-time validation on input event with debounce (300ms). Display error message below input when invalid. Pre-populate with example ID '64e3055495439dfcf3f0b665'. Create visual feedback: green checkmark for valid, red X for invalid. Disable 'Preview Avatar' and 'Get All' buttons until valid ID entered. Store validated ID in state object. Add clear button to reset field. Implement accessibility: aria-invalid, aria-describedby for error messages.",
+        "testStrategy": "Test valid 24-char hex strings pass validation. Test invalid lengths (too short/long) fail. Test non-hex characters fail. Test case-insensitivity (both uppercase and lowercase). Verify error message displays/hides correctly. Confirm buttons enable/disable based on validation state. Test debounce prevents excessive validation calls. Verify pre-populated example ID is valid.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:13.768Z"
+      },
+      {
+        "id": "13",
+        "title": "Image Format and Quality Selectors",
+        "description": "Implement format selector (PNG/JPG) and conditional quality slider that only appears when JPG is selected.",
+        "status": "done",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "high",
+        "details": "Create dropdown for format with options: PNG (default), JPG. Create quality slider (0-100, default 80) with number input fallback. Use event listener on format dropdown to show/hide quality controls. Store format and quality in state object. Update download button label dynamically ('Download PNG' vs 'Download JPG'). Add visual indicator showing current quality value. Implement aria-label for quality slider. Add tooltip explaining quality impact on file size. Use CSS display:none for hidden quality controls (not removed from DOM for accessibility). Create helper function getFormatExtension() returning 'png' or 'jpg'.",
+        "testStrategy": "Verify PNG selection hides quality controls. Verify JPG selection shows quality controls. Test quality slider range 0-100. Confirm quality value updates in real-time. Test download button label changes with format. Verify state updates correctly when format changes. Test keyboard navigation of dropdown and slider.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:32.713Z"
+      },
+      {
+        "id": "14",
+        "title": "Pose and Expression Selectors",
+        "description": "Implement dropdown selectors for poses (5 options) and expressions (6 options) with proper default values and state management.",
+        "status": "done",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "high",
+        "details": "Create two dropdowns: poses (Default, Power Stance, Relaxed, Standing, Thumbs Up) and expressions (Default/Neutral, Happy, LOL, Sad, Scared, Rage). Map UI labels to API values: 'Power Stance' -> 'power-stance', 'Thumbs Up' -> 'thumbs-up', 'LOL' -> 'lol', etc. Store selected values in state object with keys 'pose' and 'expression'. Set defaults to 'Default' (empty string or 'default'). Add event listeners to update state on selection change. Create helper function buildPoseExpressionParams() that returns query string segment. Implement aria-label for accessibility. Add visual grouping/styling to distinguish pose and expression controls.",
+        "testStrategy": "Verify all pose options appear in dropdown. Verify all expression options appear in dropdown. Test state updates when selections change. Confirm default values are set correctly. Test helper function returns correct query parameters. Verify API parameter names match ReadyPlayerMe documentation. Test keyboard navigation of dropdowns.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:36.231Z"
+      },
+      {
+        "id": "15",
+        "title": "Camera Preset and Image Size Selectors",
+        "description": "Implement camera preset selector (Portrait/Full Body/Fit) and image size selector (64/256/512/1024px) with validation and state management.",
+        "status": "done",
+        "dependencies": [
+          "11"
+        ],
+        "priority": "high",
+        "details": "Create camera dropdown with options: Portrait (default), Full Body, Fit. Map to API values: 'Full Body' -> 'fullbody'. Create size dropdown with options: 64×64, 256×256, 512×512 (default), 1024×1024. Store numeric values (64, 256, 512, 1024) in state. Add validation: size must be between 1-1024. Create helper function buildCameraParams() and buildSizeParams(). Add tooltips explaining each camera preset. Display current size selection with visual indicator. Implement aria-label for accessibility. Add info text showing estimated file size based on format and size selection (rough calculation: PNG ~4 bytes per pixel, JPG ~0.5-1 byte per pixel).",
+        "testStrategy": "Verify all camera options appear and map correctly. Verify all size options appear with correct pixel values. Test state updates on selection. Confirm default values (Portrait, 512px). Test size validation rejects values outside 1-1024 range. Verify helper functions return correct query parameters. Test file size estimation calculation.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:39.885Z"
+      },
+      {
+        "id": "16",
+        "title": "Background Color Picker",
+        "description": "Implement color picker for background color with format conversion (RGB to hex and vice versa) and transparent option for PNG.",
+        "status": "done",
+        "dependencies": [
+          "13"
+        ],
+        "priority": "medium",
+        "details": "Create HTML5 color input element (type='color'). Set default to white (#FFFFFF) for JPG, transparent for PNG. Create conversion functions: hexToRgb(hex) and rgbToHex(r,g,b). Store color in state as both hex and RGB format. Add event listener to update state on color change. Create helper function buildBackgroundParam() that returns 'r,g,b' format for API. Add toggle for 'Transparent' option (only available for PNG). When transparent selected, disable color picker and set background param to empty string. Update preview area background to show selected color. Add accessibility: aria-label for color picker. Create visual swatch showing current color.",
+        "testStrategy": "Verify color picker opens and allows selection. Test hex to RGB conversion accuracy. Test RGB to hex conversion accuracy. Verify transparent option only appears for PNG format. Confirm state updates with color changes. Test API parameter format (r,g,b). Verify preview background updates with selected color. Test keyboard navigation of color picker.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:43.218Z"
+      },
+      {
+        "id": "17",
+        "title": "Preview Functionality and API Integration",
+        "description": "Implement preview button, API URL construction, image fetching with error handling, and preview display area with loading/error states.",
+        "status": "done",
+        "dependencies": [
+          "12",
+          "13",
+          "14",
+          "15",
+          "16"
+        ],
+        "priority": "high",
+        "details": "Create buildApiUrl() function that constructs ReadyPlayerMe API URL: https://models.readyplayer.me/{avatarId}.{format}?{params}. Implement fetchAvatar() function using Fetch API with 10-second timeout (AbortController). Add loading state: show spinner, disable buttons, display 'Loading avatar...' text. On success: display image, show image dimensions and format, display constructed URL (read-only, copyable), enable download button. On error: show error message with retry option, log error to console. Implement error types: 404 (avatar not found), network error, timeout. Add retry logic with exponential backoff (max 3 attempts). Create copyable URL display using navigator.clipboard API with fallback. Add image info display: dimensions, format, file size estimate. Implement AbortController for cancellation support.",
+        "testStrategy": "Test API URL construction with various parameter combinations. Verify timeout triggers after 10 seconds. Test successful image load displays correctly. Test 404 error shows appropriate message. Test network error handling. Test retry logic executes correctly. Verify loading state displays during fetch. Confirm download button enables after successful load. Test URL copy functionality. Verify image dimensions display correctly.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:46.665Z"
+      },
+      {
+        "id": "18",
+        "title": "Single Image Download Functionality",
+        "description": "Implement download button that saves the currently displayed avatar image with proper filename formatting and user feedback.",
+        "status": "done",
+        "dependencies": [
+          "17"
+        ],
+        "priority": "high",
+        "details": "Create downloadImage() function that: generates filename 'avatar-{avatarId}-{timestamp}.{format}' using Date.now(), creates blob from displayed image, uses FileSaver.js saveAs() function to trigger download. Add fallback using URL.createObjectURL() and anchor tag click for browsers without FileSaver support. Disable download button until image successfully loaded. Add visual feedback: brief success message or toast notification. Implement error handling for download failures. Add keyboard shortcut (Ctrl+S or Cmd+S) as alternative download trigger. Store download history in sessionStorage (for future enhancement). Add accessibility: aria-label on download button.",
+        "testStrategy": "Verify download button is disabled until image loads. Test download triggers with various formats (PNG/JPG). Verify filename format includes avatarId and timestamp. Test filename is correct for different avatar IDs. Verify file downloads to user's default download folder. Test FileSaver.js fallback works. Test keyboard shortcut triggers download. Verify success feedback displays.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:50.380Z"
+      },
+      {
+        "id": "19",
+        "title": "Bulk Download Feature - Confirmation and Progress UI",
+        "description": "Implement 'Get All' button, confirmation dialog showing download details, and progress tracking UI with cancel capability.",
+        "status": "done",
+        "dependencies": [
+          "12",
+          "13",
+          "15",
+          "16"
+        ],
+        "priority": "high",
+        "details": "Create 'Get All Poses' button (enabled when valid Avatar ID present). Implement confirmation modal showing: total images (30), estimated download size calculation, list of what will be included ('All pose and expression combinations'). Add 'Proceed' and 'Cancel' buttons. Calculate estimated size: (5 poses × 6 expressions) × (size² × bytes-per-pixel) = rough estimate. Create progress UI: progress bar (0-100%), counter text ('Downloading 12/30 images...'), cancel button. Implement AbortController for cancellation. Store progress state: currentIndex, totalCount, failedImages array. Update UI in real-time as images download. Add estimated time calculation based on average download speed. Create state management for bulk download: isDownloading, progress, errors. Implement accessibility: aria-live regions for progress updates, aria-label for cancel button.",
+        "testStrategy": "Verify 'Get All' button is disabled until valid Avatar ID entered. Test confirmation modal displays correct image count (30). Test estimated size calculation accuracy. Verify 'Proceed' button initiates download. Test 'Cancel' button in confirmation closes modal. Verify progress bar updates 0-100%. Test counter increments correctly. Verify cancel button stops download process. Test progress UI updates in real-time. Verify estimated time calculation is reasonable.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:53.668Z"
+      },
+      {
+        "id": "20",
+        "title": "Bulk Download Feature - Image Fetching and ZIP Generation",
+        "description": "Implement batch image fetching with rate limiting, error handling with retries, and ZIP file creation using JSZip with incremental generation.",
+        "status": "done",
+        "dependencies": [
+          "19"
+        ],
+        "priority": "high",
+        "details": "Create generateAllCombinations() function that returns array of 30 combinations: [{pose, expression}, ...]. Implement fetchBatch() function that fetches images in batches of 5 with 100-200ms delay between requests to avoid API rate limiting. For each image: construct API URL, fetch with 10-second timeout, retry up to 3 times with exponential backoff (1s, 2s, 4s). Track failed images separately. Use JSZip v3.10.1 to create ZIP incrementally: const zip = new JSZip(); for each successful image: zip.folder(poseName).file(filename, blob). Generate ZIP filename: 'avatar-{avatarId}-all-combinations-{timestamp}.zip'. Implement memory-efficient streaming: don't load all images in memory simultaneously. Create error logging: store failed combinations for display. Handle edge cases: all images fail (show error, don't create ZIP), some fail (show warning, create ZIP with successful images). Use async/await for clean control flow.",
+        "testStrategy": "Verify all 30 combinations are generated correctly. Test batch fetching with 5-image batches. Verify rate limiting delays (100-200ms) between requests. Test retry logic executes on failure. Verify timeout triggers after 10 seconds per image. Test failed images are tracked separately. Verify ZIP file is created with correct structure. Test ZIP filename format is correct. Verify images are organized by pose in folders. Test memory usage remains reasonable during generation. Test error handling when all images fail. Test partial success (some images fail, ZIP still created).",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:23:56.947Z"
+      },
+      {
+        "id": "21",
+        "title": "Responsive Design, Styling, and Polish",
+        "description": "Implement responsive CSS layout, visual styling, loading/error states, mobile optimization, and accessibility enhancements.",
+        "status": "done",
+        "dependencies": [
+          "11",
+          "12",
+          "13",
+          "14",
+          "15",
+          "16",
+          "17",
+          "18",
+          "19",
+          "20"
+        ],
+        "priority": "medium",
+        "details": "Create responsive CSS using CSS Grid and Flexbox: desktop two-column layout (left controls, right preview), mobile single-column layout (top controls in accordion, bottom preview). Use CSS media queries: breakpoints at 768px, 1024px. Implement 8px grid system for consistent spacing. Create visual styling: clean sans-serif font (system fonts: -apple-system, BlinkMacSystemFont, 'Segoe UI'), neutral color palette (primary blue #0066CC, grays #333/#666/#999, success green #00AA00, error red #CC0000). Style all form controls: inputs, dropdowns, buttons with consistent appearance. Implement loading spinner animation (CSS keyframes). Create error message styling with icon. Add success toast notification. Implement disabled state styling for buttons. Create checkered pattern background for PNG preview transparency. Add subtle shadows and borders for depth. Implement focus states for keyboard navigation (outline, box-shadow). Add hover states for interactive elements. Create responsive preview area that scales with screen size. Implement touch-friendly button sizes (min 44×44px). Add print styles for avatar images. Test on mobile devices (iOS Safari, Chrome Mobile).",
+        "testStrategy": "Verify layout switches to single-column on mobile (<768px). Test all form controls are keyboard accessible. Verify focus states are visible. Test button sizes meet 44×44px minimum on mobile. Verify loading spinner animates smoothly. Test error messages display correctly. Verify success notifications appear and disappear. Test responsive images scale properly. Verify color contrast meets WCAG AA standards. Test on multiple devices: iPhone, Android, iPad, desktop. Verify print styles work for avatar images. Test touch interactions on mobile devices.",
+        "subtasks": [],
+        "updatedAt": "2025-12-27T10:26:21.199Z"
+      }
+    ],
+    "metadata": {
+      "version": "1.0.0",
+      "lastModified": "2025-12-27T10:26:21.200Z",
+      "taskCount": 11,
+      "completedCount": 11,
+      "tags": [
+        "master"
+      ]
+    }
+  }
+}
