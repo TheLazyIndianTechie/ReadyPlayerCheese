@@ -686,8 +686,69 @@ a:hover {
 }
 
 /* ============================================================================
-   Accessibility
-   ============================================================================ */
+    Blend Shapes Section
+    ============================================================================ */
+
+.blend-shapes-section {
+    background-color: var(--color-secondary-light);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+}
+
+.blend-shapes-section summary {
+    cursor: pointer;
+    user-select: none;
+    padding: var(--space-xs) 0;
+    transition: color var(--transition-fast);
+}
+
+.blend-shapes-section summary:hover {
+    color: var(--color-primary);
+}
+
+.blend-shapes-container {
+    margin-top: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.blend-shape-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.blend-shape-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text);
+}
+
+.blend-shape-controls {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+}
+
+.blend-shape-slider {
+    flex: 1;
+    height: 6px;
+    cursor: pointer;
+}
+
+.blend-shape-value {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-primary);
+    min-width: 35px;
+    text-align: right;
+}
+
+/* ============================================================================
+    Accessibility
+    ============================================================================ */
 
 :focus-visible {
     outline: 2px solid var(--color-primary);

@@ -17,6 +17,15 @@ const state = {
     size: 512,
     backgroundColor: '#FFFFFF',
     transparentBg: false,
+    scene: '',
+    blendShapes: {
+        mouthSmile: 0,
+        browInnerUp: 0,
+        eyeBlinkLeft: 0,
+        eyeBlinkRight: 0,
+        browDownLeft: 0,
+        browDownRight: 0,
+    },
     isImageLoaded: false,
     isBulkDownloading: false,
     currentUrl: null,
@@ -33,6 +42,7 @@ const elements = {
     imageQuality: document.getElementById('imageQuality'),
     pose: document.getElementById('pose'),
     expression: document.getElementById('expression'),
+    scene: document.getElementById('scene'),
     camera: document.getElementById('camera'),
     imageSize: document.getElementById('imageSize'),
     backgroundColor: document.getElementById('backgroundColor'),
@@ -40,6 +50,10 @@ const elements = {
     qualityGroup: document.getElementById('qualityGroup'),
     qualityValue: document.getElementById('qualityValue'),
     clearAvatarId: document.getElementById('clearAvatarId'),
+    
+    // Blend Shapes
+    blendShapeSliders: document.querySelectorAll('.blend-shape-slider'),
+    resetBlendShapesBtn: document.getElementById('resetBlendShapesBtn'),
 
     // Buttons
     previewBtn: document.getElementById('previewBtn'),
@@ -105,12 +119,19 @@ function setupEventListeners() {
     // Controls
     elements.pose.addEventListener('change', updateState);
     elements.expression.addEventListener('change', updateState);
+    elements.scene.addEventListener('change', updateState);
     elements.camera.addEventListener('change', updateState);
     elements.imageSize.addEventListener('change', updateState);
 
     // Color
     elements.backgroundColor.addEventListener('input', handleColorChange);
     elements.transparentBg.addEventListener('change', handleTransparentChange);
+
+    // Blend Shapes
+    elements.blendShapeSliders.forEach(slider => {
+        slider.addEventListener('input', handleBlendShapeChange);
+    });
+    elements.resetBlendShapesBtn.addEventListener('click', resetBlendShapes);
 
     // Buttons
     elements.previewBtn.addEventListener('click', previewAvatar);
@@ -177,6 +198,7 @@ function clearAvatarIdField() {
 function updateState(event) {
     if (event.target === elements.pose) state.pose = event.target.value;
     if (event.target === elements.expression) state.expression = event.target.value;
+    if (event.target === elements.scene) state.scene = event.target.value;
     if (event.target === elements.camera) state.camera = event.target.value;
     if (event.target === elements.imageSize) state.size = parseInt(event.target.value);
 }
@@ -230,6 +252,33 @@ function updateBackgroundColorUI() {
     }
 }
 
+function handleBlendShapeChange(event) {
+    const blendShape = event.target.dataset.blendShape;
+    const value = parseFloat(event.target.value);
+    
+    state.blendShapes[blendShape] = value;
+    
+    // Update the value display
+    const valueDisplay = document.getElementById(`${blendShape}Value`);
+    if (valueDisplay) {
+        valueDisplay.textContent = value.toFixed(1);
+    }
+}
+
+function resetBlendShapes() {
+    Object.keys(state.blendShapes).forEach(shape => {
+        state.blendShapes[shape] = 0;
+    });
+    
+    elements.blendShapeSliders.forEach(slider => {
+        slider.value = 0;
+        const valueDisplay = document.getElementById(`${slider.dataset.blendShape}Value`);
+        if (valueDisplay) {
+            valueDisplay.textContent = '0.0';
+        }
+    });
+}
+
 // ============================================================================
 // API Functions
 // ============================================================================
@@ -240,6 +289,7 @@ function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = 
 
      if (pose) params.append('pose', pose);
      if (expression) params.append('expression', expression);
+     if (state.scene) params.append('scene', state.scene);
      if (state.camera) params.append('camera', state.camera);
      if (state.size) params.append('size', state.size);
      if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
@@ -247,6 +297,13 @@ function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = 
          const rgb = hexToRgb(state.backgroundColor);
          params.append('background', `${rgb.r},${rgb.g},${rgb.b}`);
      }
+     
+     // Add blend shapes
+     Object.entries(state.blendShapes).forEach(([shape, value]) => {
+         if (value > 0) {
+             params.append(`blendShapes[${shape}]`, value.toFixed(1));
+         }
+     });
 
      const paramsStr = params.toString();
      let url = `${API_BASE}/${avatarId}.${format}`;

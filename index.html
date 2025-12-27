@@ -96,6 +96,16 @@
                             </select>
                         </div>
 
+                        <!-- Scene Presets -->
+                        <div class="form-group">
+                            <label for="scene" class="form-label">Scene</label>
+                            <select id="scene" class="form-select">
+                                <option value="">None</option>
+                                <option value="fullbody-posture-v1-transparent">Full Body Transparent</option>
+                                <option value="fullbody-posture-v1">Full Body</option>
+                            </select>
+                        </div>
+
                         <!-- Camera Preset -->
                         <div class="form-group">
                             <label for="camera" class="form-label">Camera</label>
@@ -139,6 +149,128 @@
                                 </label>
                             </div>
                         </div>
+
+                        <!-- Blend Shapes Section -->
+                        <details class="blend-shapes-section">
+                            <summary class="form-label">Facial Expression Fine-Tuning</summary>
+                            <div class="blend-shapes-container">
+                                <!-- Mouth Smile -->
+                                <div class="blend-shape-group">
+                                    <label for="mouthSmile" class="blend-shape-label">Mouth Smile</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="mouthSmile" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="mouthSmile"
+                                            aria-label="Mouth smile intensity"
+                                        >
+                                        <span id="mouthSmileValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <!-- Brow Inner Up -->
+                                <div class="blend-shape-group">
+                                    <label for="browInnerUp" class="blend-shape-label">Brow Inner Up</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="browInnerUp" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="browInnerUp"
+                                            aria-label="Brow inner up intensity"
+                                        >
+                                        <span id="browInnerUpValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <!-- Eye Blink Left -->
+                                <div class="blend-shape-group">
+                                    <label for="eyeBlinkLeft" class="blend-shape-label">Eye Blink Left</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="eyeBlinkLeft" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="eyeBlinkLeft"
+                                            aria-label="Left eye blink intensity"
+                                        >
+                                        <span id="eyeBlinkLeftValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <!-- Eye Blink Right -->
+                                <div class="blend-shape-group">
+                                    <label for="eyeBlinkRight" class="blend-shape-label">Eye Blink Right</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="eyeBlinkRight" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="eyeBlinkRight"
+                                            aria-label="Right eye blink intensity"
+                                        >
+                                        <span id="eyeBlinkRightValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <!-- Brow Down Left -->
+                                <div class="blend-shape-group">
+                                    <label for="browDownLeft" class="blend-shape-label">Brow Down Left</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="browDownLeft" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="browDownLeft"
+                                            aria-label="Left brow down intensity"
+                                        >
+                                        <span id="browDownLeftValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <!-- Brow Down Right -->
+                                <div class="blend-shape-group">
+                                    <label for="browDownRight" class="blend-shape-label">Brow Down Right</label>
+                                    <div class="blend-shape-controls">
+                                        <input 
+                                            type="range" 
+                                            id="browDownRight" 
+                                            class="form-range blend-shape-slider" 
+                                            min="0" 
+                                            max="1" 
+                                            step="0.1" 
+                                            value="0"
+                                            data-blend-shape="browDownRight"
+                                            aria-label="Right brow down intensity"
+                                        >
+                                        <span id="browDownRightValue" class="blend-shape-value">0.0</span>
+                                    </div>
+                                </div>
+
+                                <button type="button" id="resetBlendShapesBtn" class="btn btn-small" style="margin-top: 10px;">Reset All</button>
+                            </div>
+                        </details>
 
                         <!-- Action Buttons -->
                         <div class="button-group">
