@@ -76,7 +76,9 @@ const elements = {
 // ============================================================================
 
 const API_BASE = 'https://models.readyplayer.me';
-const API_TIMEOUT = 10000; // 10 seconds
+const API_TIMEOUT = 15000; // 15 seconds
+const BULK_TIMEOUT = 20000; // 20 seconds for bulk downloads
+const MAX_RETRIES = 2; // Retry failed requests up to 2 times
 
 const POSES = ['', 'power-stance', 'relaxed', 'standing', 'thumbs-up'];
 const EXPRESSIONS = ['', 'happy', 'lol', 'sad', 'scared', 'rage'];
@@ -266,30 +268,38 @@ function rgbToHex(r, g, b) {
     return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
 }
 
-async function fetchImage(url, timeout = API_TIMEOUT) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeout);
+async function fetchImage(url, timeout = API_TIMEOUT, retries = 0) {
+     const controller = new AbortController();
+     const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-    try {
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timeoutId);
+     try {
+         const response = await fetch(url, { signal: controller.signal });
+         clearTimeout(timeoutId);
 
-        if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('Avatar not found. Please check the Avatar ID.');
-            }
-            throw new Error(`HTTP ${response.status}`);
-        }
+         if (!response.ok) {
+             if (response.status === 404) {
+                 throw new Error('Avatar not found. Please check the Avatar ID.');
+             }
+             throw new Error(`HTTP ${response.status}`);
+         }
 
-        return await response.blob();
-    } catch (error) {
-        clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            throw new Error('Request timeout. Please try again.');
-        }
-        throw error;
-    }
-}
+         return await response.blob();
+     } catch (error) {
+         clearTimeout(timeoutId);
+         
+         // Retry on timeout or network errors
+         if ((error.name === 'AbortError' || error.name === 'TypeError') && retries < MAX_RETRIES) {
+             console.warn(`Retrying ${url} (attempt ${retries + 1}/${MAX_RETRIES})`);
+             await new Promise(resolve => setTimeout(resolve, 300 * (retries + 1))); // Exponential backoff
+             return fetchImage(url, timeout, retries + 1);
+         }
+         
+         if (error.name === 'AbortError') {
+             throw new Error('Request timeout');
+         }
+         throw error;
+     }
+ }
 
 // ============================================================================
 // Preview Functions
@@ -450,7 +460,7 @@ async function startBulkDownload() {
                  try {
                      const url = buildApiUrl(state.avatarId, combo.pose, combo.expression, bulkTransparent);
                      
-                     const blob = await fetchImage(url);
+                     const blob = await fetchImage(url, BULK_TIMEOUT);
                      const poseName = combo.pose || 'default';
                      const expressionName = combo.expression || 'neutral';
                      const filename = `pose-${poseName}_expression-${expressionName}.${state.format}`;
@@ -460,15 +470,19 @@ async function startBulkDownload() {
                      completed++;
                      updateProgressUI(completed, combinations.length);
                  } catch (error) {
-                     console.error(`Failed to fetch ${combo.pose}_${combo.expression}:`, error);
-                     failedCombinations.push(combo);
+                     console.error(`Failed to fetch pose="${combo.pose}" expression="${combo.expression}":`, error.message, url);
+                     failedCombinations.push({
+                         pose: combo.pose || 'default',
+                         expression: combo.expression || 'neutral',
+                         error: error.message
+                     });
                      completed++;
                      updateProgressUI(completed, combinations.length);
                  }
              }));
 
-             // Delay between batches
-             await new Promise(resolve => setTimeout(resolve, 150));
+             // Delay between batches to avoid rate limiting
+             await new Promise(resolve => setTimeout(resolve, 300));
          }
 
          if (!state.isBulkDownloading) return;
@@ -481,7 +495,9 @@ async function startBulkDownload() {
              saveAs(zipBlob, zipFilename);
 
              if (failedCombinations.length > 0) {
-                 showError(`${failedCombinations.length} images failed to download, but ZIP was created with successful images.`);
+                const failedList = failedCombinations.map(f => `${f.pose}/${f.expression}`).join(', ');
+                console.warn('Failed combinations:', failedCombinations);
+                showError(`${failedCombinations.length} images failed to download (${failedList}), but ZIP was created with successful images.`);
              }
          } else {
              showError('All images failed to download. ZIP not created.');
