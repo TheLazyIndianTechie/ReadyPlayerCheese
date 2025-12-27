@@ -68,6 +68,7 @@ const elements = {
     confirmCancelBtn: document.getElementById('confirmCancelBtn'),
     estimatedSize: document.getElementById('estimatedSize'),
     estimatedTime: document.getElementById('estimatedTime'),
+    bulkTransparentBg: document.getElementById('bulkTransparentBg'),
 };
 
 // ============================================================================
@@ -231,26 +232,26 @@ function updateBackgroundColorUI() {
 // API Functions
 // ============================================================================
 
-function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = state.expression) {
-    const format = state.format;
-    const params = new URLSearchParams();
+function buildApiUrl(avatarId = state.avatarId, pose = state.pose, expression = state.expression, transparentBg = state.transparentBg) {
+     const format = state.format;
+     const params = new URLSearchParams();
 
-    if (pose) params.append('pose', pose);
-    if (expression) params.append('expression', expression);
-    if (state.camera) params.append('camera', state.camera);
-    if (state.size) params.append('size', state.size);
-    if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
-    if (state.backgroundColor && state.backgroundColor !== 'transparent') {
-        const rgb = hexToRgb(state.backgroundColor);
-        params.append('background', `${rgb.r},${rgb.g},${rgb.b}`);
-    }
+     if (pose) params.append('pose', pose);
+     if (expression) params.append('expression', expression);
+     if (state.camera) params.append('camera', state.camera);
+     if (state.size) params.append('size', state.size);
+     if (state.format === 'jpg' && state.quality) params.append('quality', state.quality);
+     if (!transparentBg && state.backgroundColor && state.backgroundColor !== 'transparent') {
+         const rgb = hexToRgb(state.backgroundColor);
+         params.append('background', `${rgb.r},${rgb.g},${rgb.b}`);
+     }
 
-    const paramsStr = params.toString();
-    let url = `${API_BASE}/${avatarId}.${format}`;
-    if (paramsStr) url += `?${paramsStr}`;
-    
-    return url;
-}
+     const paramsStr = params.toString();
+     let url = `${API_BASE}/${avatarId}.${format}`;
+     if (paramsStr) url += `?${paramsStr}`;
+     
+     return url;
+ }
 
 function hexToRgb(hex) {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -427,71 +428,72 @@ function closeBulkConfirmation() {
 }
 
 async function startBulkDownload() {
-    closeBulkConfirmation();
-    state.isBulkDownloading = true;
-    
-    showBulkProgress();
-    const combinations = generateCombinations();
-    const failedCombinations = [];
+     closeBulkConfirmation();
+     state.isBulkDownloading = true;
+     const bulkTransparent = elements.bulkTransparentBg.checked;
+     
+     showBulkProgress();
+     const combinations = generateCombinations();
+     const failedCombinations = [];
 
-    try {
-        const zip = new JSZip();
-        let completed = 0;
+     try {
+         const zip = new JSZip();
+         let completed = 0;
 
-        // Process in batches of 5
-        for (let i = 0; i < combinations.length; i += 5) {
-            const batch = combinations.slice(i, i + 5);
+         // Process in batches of 5
+         for (let i = 0; i < combinations.length; i += 5) {
+             const batch = combinations.slice(i, i + 5);
 
-            await Promise.all(batch.map(async (combo) => {
-                if (!state.isBulkDownloading) return;
+             await Promise.all(batch.map(async (combo) => {
+                 if (!state.isBulkDownloading) return;
 
-                try {
-                    const url = buildApiUrl(state.avatarId, combo.pose, combo.expression);
-                    
-                    const blob = await fetchImage(url);
-                    const poseName = combo.pose || 'default';
-                    const expressionName = combo.expression || 'neutral';
-                    const filename = `pose-${poseName}_expression-${expressionName}.${state.format}`;
-                    
-                    zip.folder(poseName).file(filename, blob);
-                    
-                    completed++;
-                    updateProgressUI(completed, combinations.length);
-                } catch (error) {
-                    console.error(`Failed to fetch ${combo.pose}_${combo.expression}:`, error);
-                    failedCombinations.push(combo);
-                    completed++;
-                    updateProgressUI(completed, combinations.length);
-                }
-            }));
+                 try {
+                     const url = buildApiUrl(state.avatarId, combo.pose, combo.expression, bulkTransparent);
+                     
+                     const blob = await fetchImage(url);
+                     const poseName = combo.pose || 'default';
+                     const expressionName = combo.expression || 'neutral';
+                     const filename = `pose-${poseName}_expression-${expressionName}.${state.format}`;
+                     
+                     zip.folder(poseName).file(filename, blob);
+                     
+                     completed++;
+                     updateProgressUI(completed, combinations.length);
+                 } catch (error) {
+                     console.error(`Failed to fetch ${combo.pose}_${combo.expression}:`, error);
+                     failedCombinations.push(combo);
+                     completed++;
+                     updateProgressUI(completed, combinations.length);
+                 }
+             }));
 
-            // Delay between batches
-            await new Promise(resolve => setTimeout(resolve, 150));
-        }
+             // Delay between batches
+             await new Promise(resolve => setTimeout(resolve, 150));
+         }
 
-        if (!state.isBulkDownloading) return;
+         if (!state.isBulkDownloading) return;
 
-        // Generate and download ZIP
-        if (completed - failedCombinations.length > 0) {
-            const zipBlob = await zip.generateAsync({ type: 'blob' });
-            const timestamp = Date.now();
-            const zipFilename = `avatar-${state.avatarId}-all-combinations-${timestamp}.zip`;
-            saveAs(zipBlob, zipFilename);
+         // Generate and download ZIP
+         if (completed - failedCombinations.length > 0) {
+             const zipBlob = await zip.generateAsync({ type: 'blob' });
+             const timestamp = Date.now();
+             const zipFilename = `avatar-${state.avatarId}-all-combinations-${timestamp}.zip`;
+             saveAs(zipBlob, zipFilename);
 
-            if (failedCombinations.length > 0) {
-                showError(`${failedCombinations.length} images failed to download, but ZIP was created with successful images.`);
-            }
-        } else {
-            showError('All images failed to download. ZIP not created.');
-        }
-    } catch (error) {
-        console.error('Bulk download error:', error);
-        showError('Bulk download failed');
-    } finally {
-        state.isBulkDownloading = false;
-        hideBulkProgress();
-    }
-}
+             if (failedCombinations.length > 0) {
+                 showError(`${failedCombinations.length} images failed to download, but ZIP was created with successful images.`);
+             }
+         } else {
+             showError('All images failed to download. ZIP not created.');
+         }
+     } catch (error) {
+         console.error('Bulk download error:', error);
+         showError('Bulk download failed');
+     } finally {
+         state.isBulkDownloading = false;
+         hideBulkProgress();
+     }
+ }
 
 function generateCombinations() {
     const combinations = [];

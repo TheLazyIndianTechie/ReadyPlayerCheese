@@ -214,21 +214,30 @@
                         </div>
 
                         <!-- Bulk Download Confirmation Modal -->
-                        <div id="bulkConfirmModal" class="modal" style="display: none;">
-                            <div class="modal-content">
-                                <h2>Download All Combinations</h2>
-                                <div class="modal-body">
-                                    <p><strong>Total images:</strong> 30</p>
-                                    <p><strong>Combinations:</strong> 5 poses × 6 expressions</p>
-                                    <p id="estimatedSize" class="estimated-size"></p>
-                                    <p class="info-text">Estimated download time: <span id="estimatedTime">~2 minutes</span></p>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" id="confirmProceedBtn" class="btn btn-primary">Proceed</button>
-                                    <button type="button" id="confirmCancelBtn" class="btn btn-secondary">Cancel</button>
-                                </div>
-                            </div>
-                        </div>
+                         <div id="bulkConfirmModal" class="modal" style="display: none;">
+                             <div class="modal-content">
+                                 <h2>Download All Combinations</h2>
+                                 <div class="modal-body">
+                                     <p><strong>Total images:</strong> 30</p>
+                                     <p><strong>Combinations:</strong> 5 poses × 6 expressions</p>
+                                     <p id="estimatedSize" class="estimated-size"></p>
+                                     <p class="info-text">Estimated download time: <span id="estimatedTime">~2 minutes</span></p>
+                                     <label class="transparent-toggle">
+                                         <input 
+                                             type="checkbox" 
+                                             id="bulkTransparentBg" 
+                                             class="transparent-checkbox"
+                                             aria-label="Use transparent background for bulk download"
+                                         >
+                                         <span>Transparent PNGs</span>
+                                     </label>
+                                 </div>
+                                 <div class="modal-footer">
+                                     <button type="button" id="confirmProceedBtn" class="btn btn-primary">Proceed</button>
+                                     <button type="button" id="confirmCancelBtn" class="btn btn-secondary">Cancel</button>
+                                 </div>
+                             </div>
+                         </div>
                     </div>
                 </section>
             </div>
